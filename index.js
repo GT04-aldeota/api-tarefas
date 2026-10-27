@@ -53,12 +53,53 @@ app.post("/usuarios", async (req, res) => {
     }
 });
 
-app.put("/usuarios", (req, res) => {
-    res.send(`edita o usuario`);
+app.put("/usuarios/:id", async (req, res) => {
+    try {
+        const { nome, email, senha } = req.body;
+        const { id } = req.params;
+        
+        const query = await executarSQL(`UPDATE usuarios SET nome=$1, email=$2, senha=$3 WHERE id = ${id} RETURNING *;`, [nome, email, senha]);
+        
+        if(query.rowCount > 0){
+            res.json({
+                tipo: "success",
+                mensagem: "Registro atualizado com sucesso"
+            });
+        }else{
+            res.json({
+                tipo: "warning",
+                mensagem: "Falha ao atualizar registro"
+            });
+        }
+    } catch (error) {
+        res.json({
+            mensagem: error.message
+        })
+    }
 });
 
-app.delete("/usuarios", (req, res) => {
-    res.send(`deleta o usuario`);
+app.delete("/usuarios/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const query = await executarSQL(`DELETE FROM usuarios WHERE id = ${id} RETURNING *;`);
+        
+        if(query.rowCount > 0){
+            res.json({
+                tipo: "success",
+                mensagem: "Registro deletado com sucesso"
+            });
+        }else{
+            res.json({
+                tipo: "warning",
+                mensagem: "Registro não encontrado"
+            });
+        }
+    } catch (error) {
+        res.json({
+            mensagem: error.message
+        })
+    }
 });
 
 
