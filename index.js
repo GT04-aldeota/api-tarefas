@@ -33,7 +33,7 @@ app.post("/login", async (req, res) => {
         }
 
         delete emailExiste.rows[0].senha; 
-        
+
         res.json({
             tipo: "success",
             mensagem: "Login realizado com sucesso",
@@ -143,7 +143,14 @@ app.delete("/usuarios/:id", async (req, res) => {
 
 app.get("/tarefas", async (req, res) => {
     try {
-        const query = await executarSQL("SELECT * FROM tarefas;");
+        const { id } = req.query;
+        let query = null;
+        
+        if(id){
+            query = await executarSQL(`SELECT * FROM tarefas WHERE usuario_id = ${id};`);
+        }else{
+            query = await executarSQL("SELECT * FROM tarefas;")
+        }
         res.json(query.rows);
     } catch (error) {
         res.json({
